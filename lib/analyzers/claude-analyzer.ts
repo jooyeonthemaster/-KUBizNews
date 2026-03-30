@@ -42,49 +42,37 @@ export async function analyzeArticle(article: ArticleInput): Promise<AnalysisRes
 
   const content = article.body || article.excerpt || "";
 
-  const prompt = `당신은 한국 경제 뉴스 분석 전문가입니다. 고려대학교 첨단기술비즈니스 대학원 소속 분석관으로서, 경제 뉴스를 심층 분석합니다.
+  const prompt = `You are a Korean economic news analyst for Korea University Graduate School of Advanced Technology Business.
+Analyze the following article and return ONLY valid JSON. No markdown, no explanation — pure JSON only.
 
-다음 뉴스 기사를 분석하여 정확한 JSON 형식으로만 응답하세요. 마크다운이나 다른 텍스트 없이 순수 JSON만 출력하세요.
+CRITICAL CATEGORY CLASSIFICATION RULES (CHECK IN THIS EXACT ORDER):
+1. "international" — HIGHEST PRIORITY. If the article discusses: foreign countries (USA, China, Japan, EU, Middle East, etc.), US Federal Reserve (연준/Fed), Trump/트럼프, tariffs/관세, international oil prices/유가, foreign stock markets, WTO, OPEC, IMF, exchange rates (원달러/엔달러), wars/conflicts abroad, global supply chains, international trade → ALWAYS "international"
+2. "policy" — Korean domestic government policy ONLY (Korean National Assembly, Bank of Korea domestic policy)
+3. "economy" — Pure Korean domestic economy ONLY (KOSPI/KOSDAQ, Korean real estate, Korean CPI, Korean corporate earnings)
+4. "social" — Korean domestic employment, demographics, welfare, education, labor
+5. "technology" — AI, semiconductors, startups, fintech, biotech (Korean tech industry)
 
-**분석 지침:**
-1. **ai_summary**: 핵심 내용을 3-4문장으로 간결하게 요약
-2. **ai_explanation**: 경제학/비즈니스 비전공자도 이해할 수 있도록 쉬운 말로 풀어서 설명 (5-8문장). 비유나 예시를 활용하여 친근하고 이해하기 쉽게 작성
-3. **category**: 아래 5가지 중 가장 적합한 카테고리 하나 선택. **반드시 아래 우선순위 규칙을 따르세요:**
-   - "international": **최우선 판단** — 기사의 주요 무대가 해외이거나, 외국 정부/기관/기업의 정책·행동이 핵심이면 반드시 international. 예: 미국 연준(Fed) 금리, 트럼프 관세, 중국 경제, 중동 전쟁/유가, 일본 엔화, EU 정책, 글로벌 공급망, 국제 무역, 환율(원달러·엔달러), OPEC, WTO, IMF, 외국 증시 등
-   - "policy": 한국 정부/국회/한국은행의 국내 정책, 규제, 법안, 통화정책 (단, 해외 정책이 주제면 international)
-   - "economy": 순수 국내 경제 지표, 국내 금리, 코스피/코스닥, 국내 부동산, 국내 물가, 국내 기업 실적
-   - "social": 국내 고용, 인구, 소비, 복지, 교육, 노동
-   - "technology": AI, 반도체, 스타트업, 디지털, 바이오, 핀테크 (국내 기술 산업 중심)
+IMPORTANT: If the article mentions 미국, 중국, 일본, 유럽, 글로벌, 국제, 해외, 연준, Fed, 트럼프, 중동, OPEC, WTO as the MAIN topic → it MUST be "international"
 
-   **핵심 규칙**: "미국", "중국", "일본", "유럽", "글로벌", "국제", "해외", "연준", "Fed", "트럼프", "중동", "OPEC", "WTO" 등 해외 키워드가 기사 핵심이면 → international
-4. **keywords**: 핵심 키워드 3-7개
-5. **sentiment**: 기사의 경제적 톤 (positive/negative/neutral/mixed)
-6. **sentiment_score**: -1.0(매우 부정) ~ +1.0(매우 긍정)
-7. **importance_score**: 0.0(낮음) ~ 1.0(매우 높음). 경제적 파급력, 대중 관심도 고려
-8. **key_figures**: 기사에 언급된 주요 인물 (이름만)
-9. **key_organizations**: 기사에 언급된 주요 기관/기업
-10. **related_topics**: 관련된 경제 주제 2-4개
+Article:
+Title: ${article.title}
+Publisher: ${article.publisher}
+Date: ${article.published_at ?? "unknown"}
 
-기사 분석:
+Body:
+${content.slice(0, 4000)}
 
-제목: ${article.title}
-출처: ${article.publisher}
-발행일: ${article.published_at ?? "미상"}
-
-본문:
-${content.slice(0, 8000)}
-
-위 기사를 분석하여 JSON으로 응답하세요:
+Return this JSON (all text fields in Korean):
 {
-  "ai_summary": "string",
-  "ai_explanation": "string",
+  "ai_summary": "핵심 내용 3-4문장 요약",
+  "ai_explanation": "비전공자도 이해할 수 있게 쉬운 말로 5-8문장 설명, 비유와 예시 활용",
   "category": "policy|economy|social|technology|international",
-  "keywords": ["string"],
+  "keywords": ["키워드1", "키워드2"],
   "sentiment": "positive|negative|neutral|mixed",
-  "sentiment_score": number,
-  "importance_score": number,
-  "key_figures": ["string"],
-  "key_organizations": ["string"],
+  "sentiment_score": -1.0 to 1.0,
+  "importance_score": 0.0 to 1.0,
+  "key_figures": ["인물명"],
+  "key_organizations": ["기관명"],
   "related_topics": ["string"]
 }`;
 
