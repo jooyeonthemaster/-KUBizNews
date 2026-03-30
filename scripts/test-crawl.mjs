@@ -169,7 +169,7 @@ async function run() {
   // Step 3: AI 분석 (Gemini 3 Flash)
   console.log("\n=== Step 3: Gemini 3 Flash AI 분석 ===");
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
-  const genAI = new GoogleGenerativeAI("AIzaSyDj_ZS3HxLSzpJEGFhSaV12SHxVrLy_mOQ");
+  const genAI = new GoogleGenerativeAI("${process.env.GEMINI_API_KEY}");
   const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
   const { data: articlesToAnalyze } = await supabase
@@ -187,6 +187,13 @@ async function run() {
     const prompt = `당신은 한국 경제 뉴스 분석 전문가입니다. 고려대학교 첨단기술비즈니스 대학원 소속 분석관으로서, 경제 뉴스를 심층 분석합니다.
 
 다음 뉴스 기사를 분석하여 정확한 JSON 형식으로만 응답하세요. 마크다운이나 다른 텍스트 없이 순수 JSON만 출력하세요.
+
+**카테고리 분류 핵심 규칙:**
+- "international": 최우선 판단. 기사의 주요 무대가 해외이거나, 미국/중국/일본/유럽 등 외국 정부·기관의 정책·행동이 핵심이면 반드시 international. 예: 미국 연준 금리, 트럼프 관세, 중국 경제, 중동 전쟁/유가, 일본 엔화, EU, 글로벌 공급망, 국제 무역, 원달러 환율, OPEC, WTO, IMF 등
+- "policy": 한국 정부/국회/한국은행의 국내 정책 (해외 정책이 주제면 international)
+- "economy": 순수 국내 경제 지표, 국내 금리, 코스피, 국내 부동산, 국내 물가
+- "social": 국내 고용, 인구, 소비, 복지, 교육, 노동
+- "technology": AI, 반도체, 스타트업, 디지털, 바이오, 핀테크
 
 기사 제목: ${article.title}
 출처: ${article.publisher}

@@ -49,12 +49,14 @@ export async function analyzeArticle(article: ArticleInput): Promise<AnalysisRes
 **분석 지침:**
 1. **ai_summary**: 핵심 내용을 3-4문장으로 간결하게 요약
 2. **ai_explanation**: 경제학/비즈니스 비전공자도 이해할 수 있도록 쉬운 말로 풀어서 설명 (5-8문장). 비유나 예시를 활용하여 친근하고 이해하기 쉽게 작성
-3. **category**: 아래 5가지 중 가장 적합한 카테고리 하나 선택
-   - "policy": 정부 정책, 규제, 법안, 금융/통화 정책
-   - "economy": 경제 지표, 금리, 환율, 주식, 부동산, 물가
-   - "social": 고용, 인구, 소비, 복지, 교육, 노동
-   - "technology": AI, 반도체, 스타트업, 디지털, 바이오, 핀테크
-   - "international": 국제 경제, 무역, 글로벌 이슈
+3. **category**: 아래 5가지 중 가장 적합한 카테고리 하나 선택. **반드시 아래 우선순위 규칙을 따르세요:**
+   - "international": **최우선 판단** — 기사의 주요 무대가 해외이거나, 외국 정부/기관/기업의 정책·행동이 핵심이면 반드시 international. 예: 미국 연준(Fed) 금리, 트럼프 관세, 중국 경제, 중동 전쟁/유가, 일본 엔화, EU 정책, 글로벌 공급망, 국제 무역, 환율(원달러·엔달러), OPEC, WTO, IMF, 외국 증시 등
+   - "policy": 한국 정부/국회/한국은행의 국내 정책, 규제, 법안, 통화정책 (단, 해외 정책이 주제면 international)
+   - "economy": 순수 국내 경제 지표, 국내 금리, 코스피/코스닥, 국내 부동산, 국내 물가, 국내 기업 실적
+   - "social": 국내 고용, 인구, 소비, 복지, 교육, 노동
+   - "technology": AI, 반도체, 스타트업, 디지털, 바이오, 핀테크 (국내 기술 산업 중심)
+
+   **핵심 규칙**: "미국", "중국", "일본", "유럽", "글로벌", "국제", "해외", "연준", "Fed", "트럼프", "중동", "OPEC", "WTO" 등 해외 키워드가 기사 핵심이면 → international
 4. **keywords**: 핵심 키워드 3-7개
 5. **sentiment**: 기사의 경제적 톤 (positive/negative/neutral/mixed)
 6. **sentiment_score**: -1.0(매우 부정) ~ +1.0(매우 긍정)
